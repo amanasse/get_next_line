@@ -6,7 +6,7 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:32:34 by amanasse          #+#    #+#             */
-/*   Updated: 2022/05/17 12:33:15 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/05/17 19:10:55 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,13 @@
 # include <strings.h>
 # include <ctype.h>
 # include <unistd.h>
+# include <fcntl.h>
 
+void	ft_putchar(char c);
+void	ft_putnbr(int nb);
+void	ft_putstr(char *str);
+char	*ft_strjoin(char *s1, char *s2);
+size_t	ft_strlen(const char *s);
 
 
 
