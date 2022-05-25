@@ -6,50 +6,47 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:35:47 by amanasse          #+#    #+#             */
-/*   Updated: 2022/05/18 16:24:05 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/05/23 15:42:29 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-#define BUFFER_SIZE 10
+// #define BUFFER_SIZE 1
 
-char *stock_save(char *dest, int octet)
+char	*stock_save(char *dest, char *exline, char *exsave)
 {
-	int	i;
-	int j;
+	int		i;
 	char	*save;
-		
+	int		j;
+
+	j = ft_strlen(exsave) - ft_strlen(exline);
+	save = malloc(sizeof(char) * (j + 1));
 	i = 0;
-	while (dest[i] != '\0' && octet > 0)
+	while (j > 0)
+	{
+		save[i] = dest[i];
+		i++;
+		j--;
+	}
+	save[i] = '\0';
+	return (save);
+}
+
+char	*stock_line(char *dest, int octet)
+{
+	int		i;
+	char	*line;
+
+	i = 0;
+	while (dest[i] != '\0')
 	{
 		if (dest[i] == '\n')
 			break ;
 		i++;
-		octet--;
 	}
-
-	save = malloc(sizeof(char) * (octet + 2));
-	j = 0;
-	while (dest[i + j] != '\0' || octet > 0)
-	{
-		save[j - 1] = dest[i + j];
-		j++;
-		octet--;
-	}
-	save[j + 1] = '\0';
-
-	return(save);
-}
-
-char *stock_line(char *dest, int octet)
-{
-
-	int	i;
-	char	*line;
-	
+	line = malloc(sizeof(char) * (i + 2));
 	i = 0;
-	line = malloc(sizeof(char) * (octet + 2));
 	while (dest[i] != '\0' && octet > 0)
 	{
 		line[i] = dest[i];
@@ -59,38 +56,74 @@ char *stock_line(char *dest, int octet)
 		octet--;
 	}
 	line[i + 1] = '\0';
-	return(line);
+	return (line);
+}
+
+int	ft_join(char *dest, char **save, int fd)
+{
+	char	*tmp;
+	int		nb_octet;
+
+	nb_octet = 1;
+	while (check_sep(*save) == 0 && nb_octet != 0)
+	{	
+		nb_octet = read(fd, dest, BUFFER_SIZE);
+		dest[nb_octet] = '\0';
+		if (dest[0] == '\0' && *save[0] == '\0')
+			return (0);
+		if (nb_octet > 0)
+		{
+			tmp = *save;
+			*save = ft_strjoin(*save, dest);
+			free(tmp);
+			tmp = NULL;
+		}
+	}
+	return (1);
+}
+
+char	*free_stock_save(char **save, char **line)
+{
+	char	*tmp;
+
+	tmp = *save;
+	*save = stock_save(*save + ft_strlen(*line), *line, *save);
+	free(tmp);
+	tmp = NULL;
+	return (*line);
 }
 
 char	*get_next_line(int fd)
 {
-	char		dest[BUFFER_SIZE];
-	char		*line;
-	int			nb_octet;
+	static char	dest[BUFFER_SIZE + 1];
 	static char	*save;
-	
-	printf("save du debut = [%s]\n", save);
-	nb_octet = 1;
-	if(fd == -1 || BUFFER_SIZE <= 0 || read(fd, dest, 0) < 0)
-		return(0);	
-	nb_octet = read(fd, dest, BUFFER_SIZE);
-	printf("dest = [%s]\n", dest);
-	if (nb_octet == 0)
-		return(NULL);
-	if (save)
-		line = stock_line(save, nb_octet);
-	else
-		line = stock_line(dest, nb_octet);
-		
-	save = stock_save(dest, nb_octet);
+	char		*line;
 
-	printf("save de fin = [%s]\n", save);
-	return(line);
+	if (save == NULL)
+		save = ft_strdup("");
+	if (fd == -1 || BUFFER_SIZE <= 0 || read(fd, dest, 0) < 0)
+		return (NULL);
+	if (ft_join(dest, &save, fd) == 0)
+		return (NULL);
+	if (save && check_sep(save) == 1)
+	{
+		line = stock_line(save, ft_strlen(save));
+		return (free_stock_save(&save, &line));
+	}
+	if (save[0] == '\0')
+	{
+		free (save);
+		return (NULL);
+	}	
+	line = stock_line_last(save);
+	return (free_stock_save(&save, &line));
 }
 
+/*
 int	main() 
 {
 	int	fichier;
+	char *tmp;
 
 
 	if ((fichier = open("test.txt", O_RDONLY)) == -1) 
@@ -100,21 +133,35 @@ int	main()
 	}
 
 	printf("--------------------------------------------\n");
-	printf("gnl = [%s]\n", get_next_line(fichier));
+	tmp = get_next_line(fichier);
+	printf("line = [%s]\n", tmp);
+	free (tmp);
 	printf("--------------------------------------------\n");
-	printf("gnl = [%s]\n", get_next_line(fichier));
+	tmp = get_next_line(fichier);
+	printf("line = [%s]\n", tmp);
+	free (tmp);
 	printf("--------------------------------------------\n");
-	printf("gnl = [%s]\n", get_next_line(fichier));
+	tmp = get_next_line(fichier);
+	printf("line = [%s]\n", tmp);
+	free (tmp);
 	printf("--------------------------------------------\n");
-	printf("gnl = [%s]\n", get_next_line(fichier));
+	tmp = get_next_line(fichier);
+	printf("line = [%s]\n", tmp);
+	free (tmp);
+	printf("--------------------------------------------\n");
+	tmp = get_next_line(fichier);
+	printf("line = [%s]\n", tmp);
+	free (tmp);
 
-
-	// get_next_line(fichier);
-
-	
-	
 
 	close(fichier);
-	// printf("\n");
-	// puts("FIN"); 
+ 
+ 	// nb_octet = read(fd, dest, BUFFER_SIZE);
+	// if (nb_octet > 0)
+	// {
+	// 	if(nb_octet < BUFFER_SIZE)
+	// 		dest[nb_octet] = '\0';
+	// 	save = ft_strjoin(save, dest, nb_octet, BUFFER_SIZE);
+	// }
 }
+*/

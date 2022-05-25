@@ -6,61 +6,37 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:35:00 by amanasse          #+#    #+#             */
-/*   Updated: 2022/05/18 10:32:12 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/05/23 15:27:29 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	ft_putchar(char c)
+char	*ft_strdup(char *s)
 {
-	write(1, &c, 1);
-}
+	char	*str;
+	int		i;
 
-void	ft_putnbr(int nb)
-{
-	int	ok;
-
-	ok = 0;
-	if (nb < 0)
-	{
-		nb *= -1;
-		ft_putchar('-');
-	}
-	if (nb == -2147483648)
-	{
-		ok = 1;
-		write(1, "2147483648", 10);
-	}
-	else if (nb < 10)
-	{
-		ft_putchar(nb + 48);
-		ok = 1;
-	}
-	else
-		ft_putnbr(nb / 10);
-	if (ok == 0)
-		ft_putchar((nb % 10) + 48);
-}
-
-void	ft_putstr(char *str)
-
-{
-	int	i;
-
+	i = ft_strlen(s);
+	str = malloc(sizeof(char) * (i + 1));
+	if (str == NULL)
+		return (NULL);
 	i = 0;
-	while (str[i] != '\0')
+	while (s[i] != '\0')
 	{
-		ft_putchar(str[i]);
+		str[i] = s[i];
 		i++;
 	}
+	str[i] = '\0';
+	return (str);
 }
 
-
-size_t	ft_strlen(const char *s)
+int	ft_strlen(char *s)
 {
 	int	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i] != 0)
 		i++;
@@ -68,12 +44,11 @@ size_t	ft_strlen(const char *s)
 }
 
 char	*ft_strjoin(char *s1, char *s2)
-
 {
 	size_t	i;
 	size_t	j;
-	size_t	lens1;
-	size_t	lens2;
+	int		lens1;
+	int		lens2;
 	char	*str;
 
 	lens1 = ft_strlen(s1);
@@ -97,3 +72,34 @@ char	*ft_strjoin(char *s1, char *s2)
 	return (str);
 }
 
+int	check_sep(char *str)
+{
+	int	i;
+
+	i = 0;
+	if (!str)
+		return (0);
+	while (str[i])
+	{
+		if (str[i] == '\n')
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	*stock_line_last(char *dest)
+{
+	int		i;
+	char	*line;
+
+	i = 0;
+	line = malloc(sizeof(char) * ft_strlen(dest) + 1);
+	while (dest[i] != '\0')
+	{
+		line[i] = dest[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
+}
