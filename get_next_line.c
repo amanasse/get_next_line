@@ -6,13 +6,11 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:35:47 by amanasse          #+#    #+#             */
-/*   Updated: 2022/05/23 15:42:29 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/06/02 15:26:12 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-// #define BUFFER_SIZE 1
 
 char	*stock_save(char *dest, char *exline, char *exsave)
 {
@@ -22,6 +20,8 @@ char	*stock_save(char *dest, char *exline, char *exsave)
 
 	j = ft_strlen(exsave) - ft_strlen(exline);
 	save = malloc(sizeof(char) * (j + 1));
+	if (save == NULL)
+		return (NULL);
 	i = 0;
 	while (j > 0)
 	{
@@ -46,6 +46,8 @@ char	*stock_line(char *dest, int octet)
 		i++;
 	}
 	line = malloc(sizeof(char) * (i + 2));
+	if (line == NULL)
+		return (NULL);
 	i = 0;
 	while (dest[i] != '\0' && octet > 0)
 	{
@@ -69,12 +71,17 @@ int	ft_join(char *dest, char **save, int fd)
 	{	
 		nb_octet = read(fd, dest, BUFFER_SIZE);
 		dest[nb_octet] = '\0';
-		if (dest[0] == '\0' && *save[0] == '\0')
+		if (*save && dest && dest[0] == '\0' && *save[0] == '\0')
 			return (0);
-		if (nb_octet > 0)
+		if (*save && dest && nb_octet > 0)
 		{
 			tmp = *save;
 			*save = ft_strjoin(*save, dest);
+			if (!*save)
+			{
+				free (tmp);
+				return (0);
+			}
 			free(tmp);
 			tmp = NULL;
 		}
@@ -99,59 +106,76 @@ char	*get_next_line(int fd)
 	static char	*save;
 	char		*line;
 
-	if (save == NULL)
-		save = ft_strdup("");
 	if (fd == -1 || BUFFER_SIZE <= 0 || read(fd, dest, 0) < 0)
+	{
+
+		printf("TEST0\n");
 		return (NULL);
+	}
+	if (save == NULL)
+	{
+		printf("TEST1\n");
+		save = ft_strdup("");
+		if (!save)
+			return (NULL);
+	}
 	if (ft_join(dest, &save, fd) == 0)
-		return (NULL);
+	{
+		if (save[0] == '\0')
+		{
+			free(save);
+			printf("TEST2\n");
+			return (NULL);
+		}
+
+	}
 	if (save && check_sep(save) == 1)
 	{
+		printf("TEST3\n");
 		line = stock_line(save, ft_strlen(save));
 		return (free_stock_save(&save, &line));
 	}
 	if (save[0] == '\0')
 	{
+		printf("**************TESTSAVE = [%s]****************\n", save);
 		free (save);
 		return (NULL);
 	}	
-	line = stock_line_last(save);
-	return (free_stock_save(&save, &line));
+	return (line = stock_line_last(save), free_stock_save(&save, &line));
 }
 
-/*
+
+
 int	main() 
 {
 	int	fichier;
 	char *tmp;
 
+	fichier = open("test.txt", 0);
 
-	if ((fichier = open("test.txt", O_RDONLY)) == -1) 
+
+	while((tmp = get_next_line(fichier)) != NULL)
 	{
-		perror("Impossible d'ouvrir le fichier en lecture\n"); 
-		exit(1);
+		printf("%s", tmp);
+		free (tmp);
+		// printf("Je free une fois dans get next line\n");
 	}
-
-	printf("--------------------------------------------\n");
-	tmp = get_next_line(fichier);
-	printf("line = [%s]\n", tmp);
-	free (tmp);
-	printf("--------------------------------------------\n");
-	tmp = get_next_line(fichier);
-	printf("line = [%s]\n", tmp);
-	free (tmp);
-	printf("--------------------------------------------\n");
-	tmp = get_next_line(fichier);
-	printf("line = [%s]\n", tmp);
-	free (tmp);
-	printf("--------------------------------------------\n");
-	tmp = get_next_line(fichier);
-	printf("line = [%s]\n", tmp);
-	free (tmp);
-	printf("--------------------------------------------\n");
-	tmp = get_next_line(fichier);
-	printf("line = [%s]\n", tmp);
-	free (tmp);
+	// printf("--------------------------------------------\n");
+	// tmp = get_next_line(fichier);
+	// printf("line = [%s]\n", tmp);
+	// free (tmp);
+	// printf("--------------------------------------------\n");
+	// tmp = get_next_line(fichier);
+	// printf("line = [%s]\n", tmp);
+	// free (tmp);
+	// printf("--------------------------------------------\n");
+	// tmp = get_next_line(fichier);
+	// printf("line = [%s]\n", tmp);
+	// free (tmp);
+	// printf("--------------------------------------------\n");
+	// tmp = get_next_line(fichier);
+	// printf("line = [%s]\n", tmp);
+	// free (tmp);
 
 
 	close(fichier);
@@ -164,4 +188,3 @@ int	main()
 	// 	save = ft_strjoin(save, dest, nb_octet, BUFFER_SIZE);
 	// }
 }
-*/

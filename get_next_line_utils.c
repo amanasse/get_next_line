@@ -6,7 +6,7 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:35:00 by amanasse          #+#    #+#             */
-/*   Updated: 2022/05/23 15:27:29 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/06/02 14:19:29 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int	check_sep(char *str)
 	int	i;
 
 	i = 0;
-	if (!str)
+	if (!str || str[0] == '\0')
 		return (0);
 	while (str[i])
 	{
@@ -94,7 +94,9 @@ char	*stock_line_last(char *dest)
 	char	*line;
 
 	i = 0;
-	line = malloc(sizeof(char) * ft_strlen(dest) + 1);
+	line = malloc(sizeof(char) * (ft_strlen(dest) + 1));
+	if (!line)
+		return (NULL);
 	while (dest[i] != '\0')
 	{
 		line[i] = dest[i];
