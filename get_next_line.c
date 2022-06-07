@@ -6,7 +6,7 @@
 /*   By: amanasse <amanasse@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/17 12:35:47 by amanasse          #+#    #+#             */
-/*   Updated: 2022/06/02 15:26:12 by amanasse         ###   ########.fr       */
+/*   Updated: 2022/06/02 17:48:17 by amanasse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,58 +102,38 @@ char	*free_stock_save(char **save, char **line)
 
 char	*get_next_line(int fd)
 {
-	static char	dest[BUFFER_SIZE + 1];
+	static char	dest[BUFFER_SIZE];
 	static char	*save;
 	char		*line;
 
 	if (fd == -1 || BUFFER_SIZE <= 0 || read(fd, dest, 0) < 0)
-	{
-
-		printf("TEST0\n");
 		return (NULL);
-	}
 	if (save == NULL)
 	{
-		printf("TEST1\n");
 		save = ft_strdup("");
 		if (!save)
 			return (NULL);
 	}
 	if (ft_join(dest, &save, fd) == 0)
 	{
-		if (save[0] == '\0')
-		{
-			free(save);
-			printf("TEST2\n");
-			return (NULL);
-		}
-
+		if (save && save[0] == '\0')
+			return (free(save), save = NULL, NULL);
 	}
 	if (save && check_sep(save) == 1)
 	{
-		printf("TEST3\n");
 		line = stock_line(save, ft_strlen(save));
 		return (free_stock_save(&save, &line));
 	}
-	if (save[0] == '\0')
-	{
-		printf("**************TESTSAVE = [%s]****************\n", save);
-		free (save);
-		return (NULL);
-	}	
 	return (line = stock_line_last(save), free_stock_save(&save, &line));
 }
 
-
-
+/*
 int	main() 
 {
 	int	fichier;
 	char *tmp;
 
 	fichier = open("test.txt", 0);
-
-
 	while((tmp = get_next_line(fichier)) != NULL)
 	{
 		printf("%s", tmp);
@@ -176,15 +156,6 @@ int	main()
 	// tmp = get_next_line(fichier);
 	// printf("line = [%s]\n", tmp);
 	// free (tmp);
-
-
 	close(fichier);
- 
- 	// nb_octet = read(fd, dest, BUFFER_SIZE);
-	// if (nb_octet > 0)
-	// {
-	// 	if(nb_octet < BUFFER_SIZE)
-	// 		dest[nb_octet] = '\0';
-	// 	save = ft_strjoin(save, dest, nb_octet, BUFFER_SIZE);
-	// }
 }
+*/
